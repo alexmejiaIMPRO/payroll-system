@@ -86,7 +86,7 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
         >
-          Ingresar
+          Sign In
         </button>
 
        
