@@ -29,56 +29,72 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md w-96"
+        className="bg-white rounded-lg shadow-xl w-full max-w-md p-8"
       >
-        {/* Logo arriba */}
-        <div className="flex justify-center mb-4">
-          <Image
-            src="/logo.png" // <-- coloca tu imagen en /public/logo.png
-            alt="Logo"
-            width={120}
-            height={120}
-            priority
-          />
+        {/* Logo centrado */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="bg-white p-3 rounded-full shadow-md">
+            <Image
+              src="/logo.png" // asegurate de tenerlo en /public/logo.png
+              alt="Impro Aerospace"
+              width={180}
+              height={80}
+              priority
+            />
+          </div>
+          <h1 className="text-xl font-bold text-gray-800 mt-4">
+            Bienvenido a Impro ERP
+          </h1>
+          <p className="text-sm text-gray-500">Gestión de nómina y RRHH</p>
         </div>
 
-        <h1 className="text-xl font-bold mb-4 text-center text-black">
-          Login
-        </h1>
+        {/* Errores */}
+        {error && (
+          <p className="text-red-600 mb-4 text-center font-medium">
+            {error}
+          </p>
+        )}
 
-        {error && <p className="text-red-600 mb-2">{error}</p>}
-
+        {/* Inputs */}
         <div className="mb-4">
-          <label className="block text-sm mb-1 text-black">Email</label>
+          <label className="block text-sm mb-1 text-gray-700">Email</label>
           <input
             type="email"
-            className="w-full border p-2 rounded text-black"
+            className="w-full border p-2 rounded text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm mb-1 text-black">Password</label>
+        <div className="mb-6">
+          <label className="block text-sm mb-1 text-gray-700">Password</label>
           <input
             type="password"
-            className="w-full border p-2 rounded text-black"
+            className="w-full border p-2 rounded text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
 
+        {/* Botón */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
         >
           Ingresar
         </button>
+
+        {/* Links extras */}
+        <div className="mt-4 text-center text-sm">
+          <a href="#" className="text-blue-600 hover:underline">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
       </form>
     </div>
   )
