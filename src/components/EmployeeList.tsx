@@ -1,6 +1,8 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { signOut } from "next-auth/react"
 
 interface Employee {
   id: number
@@ -30,16 +32,10 @@ export default function EmployeeList({ onEdit, refreshTrigger }: EmployeeListPro
 
   const fetchEmployees = async () => {
     try {
-      // Using Axios instead of fetch
       const response = await axios.get('/api/employees')
       setEmployees(response.data)
     } catch (error) {
       console.error('Error fetching employees:', error)
-      // Better error handling with Axios
-      if (axios.isAxiosError(error)) {
-        console.error('Response data:', error.response?.data)
-        console.error('Status code:', error.response?.status)
-      }
     } finally {
       setLoading(false)
     }
@@ -52,16 +48,10 @@ export default function EmployeeList({ onEdit, refreshTrigger }: EmployeeListPro
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this employee?')) {
       try {
-        // Using Axios instead of fetch
         await axios.delete(`/api/employees/${id}`)
         fetchEmployees()
       } catch (error) {
         console.error('Error deleting employee:', error)
-        // Better error handling with Axios
-        if (axios.isAxiosError(error)) {
-          console.error('Response data:', error.response?.data)
-          console.error('Status code:', error.response?.status)
-        }
       }
     }
   }
@@ -95,91 +85,77 @@ export default function EmployeeList({ onEdit, refreshTrigger }: EmployeeListPro
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            Employee Directory ({filteredEmployees.length})
-          </h2>
+      {/* Header con Logout */}
+      <div className="p-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between">
+        <h2 className="text-2xl font-semibold text-gray-900">
+          Employee Directory ({filteredEmployees.length})
+        </h2>
+        
+        <div className="flex items-center space-x-4 mt-4 md:mt-0">
+          <input
+            type="text"
+            placeholder="Search employees..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           
-          <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
-            <input
-              type="text"
-              placeholder="Search employees..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            
-            <select
-              value={filterDepartment}
-              onChange={(e) => setFilterDepartment(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Departments</option>
-              {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-            
-            <select
-              value={filterPlant}
-              onChange={(e) => setFilterPlant(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Plants</option>
-              {plants.map(plant => (
-                <option key={plant} value={plant}>{plant}</option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Departments</option>
+            {departments.map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </select>
+          
+          <select
+            value={filterPlant}
+            onChange={(e) => setFilterPlant(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Plants</option>
+            {plants.map(plant => (
+              <option key={plant} value={plant}>{plant}</option>
+            ))}
+          </select>
+
+          {/* 🔴 Botón de Logout */}
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
+      {/* Tabla de empleados */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Employee
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Position
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Department
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Plant
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Salary
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Hire Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plant</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hire Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredEmployees.map((employee) => (
               <tr key={employee.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                        {employee.name.charAt(0).toUpperCase()}
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {employee.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        #{employee.payrollNumber}
-                      </div>
-                    </div>
+                <td className="px-6 py-4 whitespace-nowrap flex items-center">
+                  <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                    {employee.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                    <div className="text-sm text-gray-500">#{employee.payrollNumber}</div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
