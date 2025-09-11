@@ -36,7 +36,7 @@ export default function LoginPage() {
       >
         {/* Logo centrado */}
         <div className="flex flex-col items-center mb-6">
-          <div className="bg-white p-3 rounded-full shadow-md">
+          <div className="bg-white p-3">
             <Image
               src="/logo.png" // asegurate de tenerlo en /public/logo.png
               alt="Impro Aerospace"
