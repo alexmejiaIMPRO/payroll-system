@@ -46,7 +46,7 @@ export default function LoginPage() {
             />
           </div>
           <h1 className="text-xl font-bold text-gray-800 mt-4">
-            Impro HRS
+            Welcome 
           </h1>
           <p className="text-sm text-gray-500">HR & Payroll System</p>
         </div>
@@ -89,12 +89,7 @@ export default function LoginPage() {
           Ingresar
         </button>
 
-        {/* Links extras */}
-        <div className="mt-4 text-center text-sm">
-          <a href="#" className="text-blue-600 hover:underline">
-            ¿Olvidaste tu contraseña?
-          </a>
-        </div>
+       
       </form>
     </div>
   )
