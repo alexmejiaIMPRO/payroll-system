@@ -46,9 +46,9 @@ export default function LoginPage() {
             />
           </div>
           <h1 className="text-xl font-bold text-gray-800 mt-4">
-            Bienvenido a Impro ERP
+            Impro HRS
           </h1>
-          <p className="text-sm text-gray-500">Gestión de nómina y RRHH</p>
+          <p className="text-sm text-gray-500">HR & Payroll System</p>
         </div>
 
         {/* Errores */}
