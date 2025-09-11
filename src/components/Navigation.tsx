@@ -1,22 +1,26 @@
-'use client'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useSession, signOut } from "next-auth/react"
 
 export default function Navigation() {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   const navItems = [
-    { href: '/', label: 'Dashboard', icon: '📊' },
-    { href: '/employees', label: 'Employees', icon: '👥' },
-    { href: '/positions', label: 'Positions', icon: '💼' },
-    { href: '/payroll', label: 'Payroll', icon: '💰' },
-    { href: '/reports', label: 'Reports', icon: '📈' },
+    { href: "/", label: "Dashboard", icon: "📊" },
+    { href: "/employees", label: "Employees", icon: "👥" },
+    { href: "/positions", label: "Positions", icon: "💼" },
+    { href: "/payroll", label: "Payroll", icon: "💰" },
+    { href: "/reports", label: "Reports", icon: "📈" },
   ]
 
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* Logo & Nav */}
           <div className="flex items-center space-x-8">
             <Link href="/" className="text-2xl font-bold text-blue-600">
               IMPRO ERP
@@ -28,8 +32,8 @@ export default function Navigation() {
                   href={item.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     pathname === item.href
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
                   <span>{item.icon}</span>
@@ -38,10 +42,29 @@ export default function Navigation() {
               ))}
             </div>
           </div>
+
+          {/* User Info & Logout */}
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-600">
-              Welcome, Admin
-            </div>
+            {session?.user ? (
+              <>
+                <div className="text-sm font-medium text-gray-800">
+                  Welcome, {session.user.name ?? session.user.email}
+                </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       </div>
