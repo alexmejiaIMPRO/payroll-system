@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -33,7 +34,20 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-lg shadow-md w-96"
       >
-        <h1 className="text-xl font-bold mb-4 text-black">Login</h1>
+        {/* Logo arriba */}
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.png" // <-- coloca tu imagen en /public/logo.png
+            alt="Logo"
+            width={120}
+            height={120}
+            priority
+          />
+        </div>
+
+        <h1 className="text-xl font-bold mb-4 text-center text-black">
+          Login
+        </h1>
 
         {error && <p className="text-red-600 mb-2">{error}</p>}
 
