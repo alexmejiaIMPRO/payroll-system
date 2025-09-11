@@ -123,7 +123,9 @@ export default function ReportsPage() {
             <div key={key} className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">{key}</span>
-                <span className="font-medium">{value} ({percentage.toFixed(1)}%)</span>
+                <span className="font-medium text-black">
+                  {value} ({percentage.toFixed(1)}%)
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
@@ -167,19 +169,23 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-sm font-medium text-gray-600">Total Employees</p>
-          <p className="text-3xl font-bold text-gray-900">{reportData.totalEmployees}</p>
+          <p className="text-3xl font-bold text-black">{reportData.totalEmployees}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-sm font-medium text-gray-600">Total Positions</p>
-          <p className="text-3xl font-bold text-gray-900">{reportData.totalPositions}</p>
+          <p className="text-3xl font-bold text-black">{reportData.totalPositions}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-sm font-medium text-gray-600">Average Salary</p>
-          <p className="text-3xl font-bold text-gray-900">${reportData.averageSalary.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-black">
+            ${reportData.averageSalary.toLocaleString()}
+          </p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-sm font-medium text-gray-600">Total Daily Payroll</p>
-          <p className="text-3xl font-bold text-gray-900">${reportData.totalPayroll.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-black">
+            ${reportData.totalPayroll.toLocaleString()}
+          </p>
         </div>
       </div>
 

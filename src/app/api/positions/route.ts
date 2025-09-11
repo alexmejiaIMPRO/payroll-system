@@ -4,7 +4,7 @@ import { positionSchema } from '@/schemas/position'
 
 // GET: Lista todas las posiciones
 export async function GET() {
-  const positions = await PositionService.getAll()
+  const positions = PositionService.getAll()
   return NextResponse.json(positions)
 }
 
@@ -17,7 +17,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: result.error.format() }, { status: 400 })
   }
 
-  const position = await PositionService.create(result.data)
+  const position = PositionService.create(result.data)
   return NextResponse.json(position, { status: 201 })
 }
-

@@ -8,7 +8,7 @@ interface Position {
   department: string
   dailySalary: number
   isFilled: boolean
-  employees: any[]
+  employeeCount: number
 }
 
 interface PositionListProps {
@@ -179,7 +179,7 @@ export default function PositionList({ onEdit, refreshTrigger }: PositionListPro
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {position.employees.length} assigned
+                  {position.employeeCount} assigned
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <button

@@ -6,6 +6,7 @@ export interface Position {
   department: string
   dailySalary: number
   isFilled: boolean
+  employeeCount: number
 }
 
 export interface CreatePositionData {
@@ -16,21 +17,40 @@ export interface CreatePositionData {
 
 export class PositionService {
   static getAll(): Position[] {
-    const stmt = db.prepare('SELECT * FROM positions')
+    const stmt = db.prepare(`
+      SELECT p.*, COUNT(e.id) as employeeCount
+      FROM positions p
+      LEFT JOIN employees e ON e.positionId = p.id
+      GROUP BY p.id
+    `)
     const rows = stmt.all() as any[]
     return rows.map(row => ({
-      ...row,
-      isFilled: Boolean(row.isFilled)
+      id: row.id,
+      title: row.title,
+      department: row.department,
+      dailySalary: row.dailySalary,
+      isFilled: Boolean(row.isFilled),
+      employeeCount: row.employeeCount
     }))
   }
 
   static getById(id: number): Position | null {
-    const stmt = db.prepare('SELECT * FROM positions WHERE id = ?')
+    const stmt = db.prepare(`
+      SELECT p.*, COUNT(e.id) as employeeCount
+      FROM positions p
+      LEFT JOIN employees e ON e.positionId = p.id
+      WHERE p.id = ?
+      GROUP BY p.id
+    `)
     const row = stmt.get(id) as any
     if (!row) return null
     return {
-      ...row,
-      isFilled: Boolean(row.isFilled)
+      id: row.id,
+      title: row.title,
+      department: row.department,
+      dailySalary: row.dailySalary,
+      isFilled: Boolean(row.isFilled),
+      employeeCount: row.employeeCount
     }
   }
 
@@ -43,7 +63,10 @@ export class PositionService {
     return this.getById(result.lastInsertRowid as number)!
   }
 
-  static update(id: number, data: Partial<CreatePositionData & { isFilled: boolean }>): Position | null {
+  static update(
+    id: number,
+    data: Partial<CreatePositionData & { isFilled: boolean }>
+  ): Position | null {
     const current = this.getById(id)
     if (!current) return null
 
@@ -70,7 +93,9 @@ export class PositionService {
     if (updates.length === 0) return current
 
     values.push(id)
-    const stmt = db.prepare(`UPDATE positions SET ${updates.join(', ')} WHERE id = ?`)
+    const stmt = db.prepare(
+      `UPDATE positions SET ${updates.join(', ')} WHERE id = ?`
+    )
     stmt.run(...values)
 
     return this.getById(id)!
