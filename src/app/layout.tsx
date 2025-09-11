@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 export const metadata: Metadata = {
   title: "IMPRO ERP System",
   description: "Complete payroll and HR management system",
+  icons: {
+    icon: "/favicon.png",
+  },
 }
 
 export default function RootLayout({
