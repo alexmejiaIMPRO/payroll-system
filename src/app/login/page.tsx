@@ -48,7 +48,7 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold text-gray-800 mt-4">
             Welcome 
           </h1>
-          <p className="text-sm text-gray-500">HR & Payroll System</p>
+          <p className="text-sm text-gray-500">HR Information System</p>
         </div>
 
         {/* Errores */}
