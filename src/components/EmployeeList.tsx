@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 interface Employee {
   id: number
@@ -29,11 +30,16 @@ export default function EmployeeList({ onEdit, refreshTrigger }: EmployeeListPro
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('/api/employees')
-      const data = await response.json()
-      setEmployees(data)
+      // Using Axios instead of fetch
+      const response = await axios.get('/api/employees')
+      setEmployees(response.data)
     } catch (error) {
       console.error('Error fetching employees:', error)
+      // Better error handling with Axios
+      if (axios.isAxiosError(error)) {
+        console.error('Response data:', error.response?.data)
+        console.error('Status code:', error.response?.status)
+      }
     } finally {
       setLoading(false)
     }
@@ -46,10 +52,16 @@ export default function EmployeeList({ onEdit, refreshTrigger }: EmployeeListPro
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this employee?')) {
       try {
-        await fetch(`/api/employees/${id}`, { method: 'DELETE' })
+        // Using Axios instead of fetch
+        await axios.delete(`/api/employees/${id}`)
         fetchEmployees()
       } catch (error) {
         console.error('Error deleting employee:', error)
+        // Better error handling with Axios
+        if (axios.isAxiosError(error)) {
+          console.error('Response data:', error.response?.data)
+          console.error('Status code:', error.response?.status)
+        }
       }
     }
   }

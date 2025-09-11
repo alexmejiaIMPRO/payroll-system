@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 interface PayrollData {
   id: number
@@ -21,9 +22,8 @@ export default function PayrollPage() {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('/api/employees')
-        const data = await response.json()
-        setEmployees(data)
+        const response = await axios.get<PayrollData[]>('/api/employees')
+        setEmployees(response.data)
       } catch (error) {
         console.error('Error fetching employees:', error)
       } finally {

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 interface Position {
   id: number
@@ -24,9 +25,8 @@ export default function PositionList({ onEdit, refreshTrigger }: PositionListPro
 
   const fetchPositions = async () => {
     try {
-      const response = await fetch('/api/positions')
-      const data = await response.json()
-      setPositions(data)
+      const response = await axios.get('/api/positions')
+      setPositions(response.data)
     } catch (error) {
       console.error('Error fetching positions:', error)
     } finally {
@@ -41,7 +41,7 @@ export default function PositionList({ onEdit, refreshTrigger }: PositionListPro
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this position?')) {
       try {
-        await fetch(`/api/positions/${id}`, { method: 'DELETE' })
+        await axios.delete(`/api/positions/${id}`)
         fetchPositions()
       } catch (error) {
         console.error('Error deleting position:', error)

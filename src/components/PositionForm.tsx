@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { positionSchema } from '@/schemas/position'
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 interface PositionFormProps {
   editData?: any
@@ -27,20 +28,27 @@ export default function PositionForm({ editData, onSuccess }: PositionFormProps)
     setIsSubmitting(true)
     try {
       const url = editData ? `/api/positions/${editData.id}` : '/api/positions'
-      const method = editData ? 'PUT' : 'POST'
       
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-
-      if (response.ok) {
-        reset()
-        onSuccess?.()
+      // Using Axios instead of fetch
+      if (editData) {
+        await axios.put(url, data, {
+          headers: { 'Content-Type': 'application/json' }
+        })
+      } else {
+        await axios.post(url, data, {
+          headers: { 'Content-Type': 'application/json' }
+        })
       }
+
+      reset()
+      onSuccess?.()
     } catch (error) {
       console.error('Error submitting form:', error)
+      // Better error handling with Axios
+      if (axios.isAxiosError(error)) {
+        console.error('Response data:', error.response?.data)
+        console.error('Status code:', error.response?.status)
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -80,7 +88,7 @@ export default function PositionForm({ editData, onSuccess }: PositionFormProps)
               placeholder="Enter position title"
             />
             {errors.title && (
-              <p className="text-sm text-red-600">{errors.title.message}</p>
+              <p className="text-sm text-red-600">{String(errors.title.message)}</p>
             )}
           </div>
 
@@ -100,7 +108,7 @@ export default function PositionForm({ editData, onSuccess }: PositionFormProps)
               ))}
             </select>
             {errors.department && (
-              <p className="text-sm text-red-600">{errors.department.message}</p>
+              <p className="text-sm text-red-600">{String(errors.department.message || '')}</p>
             )}
           </div>
 
@@ -116,7 +124,7 @@ export default function PositionForm({ editData, onSuccess }: PositionFormProps)
               placeholder="Enter daily salary"
             />
             {errors.dailySalary && (
-              <p className="text-sm text-red-600">{errors.dailySalary.message}</p>
+              <p className="text-sm text-red-600">{String(errors.dailySalary.message || '')}</p>
             )}
           </div>
 

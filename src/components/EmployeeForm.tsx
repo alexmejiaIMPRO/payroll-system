@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { employeeSchema } from '@/schemas/employee'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 interface EmployeeFormProps {
   editData?: any
@@ -19,9 +20,9 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
   })
 
   useEffect(() => {
-    fetch('/api/positions')
-      .then(res => res.json())
-      .then(setPositions)
+    axios.get('/api/positions')
+      .then(response => setPositions(response.data))
+      .catch(error => console.error('Error fetching positions:', error))
   }, [])
 
   useEffect(() => {
@@ -34,20 +35,24 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
     setIsSubmitting(true)
     try {
       const url = editData ? `/api/employees/${editData.id}` : '/api/employees'
-      const method = editData ? 'PUT' : 'POST'
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-
-      if (response.ok) {
-        reset()
-        onSuccess?.()
+      if (editData) {
+        await axios.put(url, data, {
+          headers: { 'Content-Type': 'application/json' }
+        })
+      } else {
+        await axios.post(url, data, {
+          headers: { 'Content-Type': 'application/json' }
+        })
       }
+
+      reset()
+      onSuccess?.()
     } catch (error) {
       console.error('Error submitting form:', error)
+      if (axios.isAxiosError(error)) {
+        console.error('Response data:', error.response?.data)
+        console.error('Status code:', error.response?.status)
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -122,7 +127,7 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
   ]
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-xl shadow-lg p-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">
         {editData ? 'Edit Employee' : 'Add New Employee'}
       </h2>
@@ -131,7 +136,7 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {formFields.map((field) => (
             <div key={field.name} className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-800">
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
@@ -139,7 +144,9 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
               {field.type === 'select' ? (
                 <select
                   {...register(field.name)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white 
+                             text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 
+                             focus:border-blue-600 transition"
                 >
                   <option value="">Select {field.label}</option>
                   {field.options?.map((option: any) => (
@@ -156,7 +163,9 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
                   type={field.type}
                   step={field.step}
                   maxLength={field.maxLength}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white 
+                             text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 
+                             focus:ring-blue-600 focus:border-blue-600 transition"
                   placeholder={`Enter ${field.label.toLowerCase()}`}
                 />
               )}
@@ -174,14 +183,16 @@ export default function EmployeeForm({ editData, onSuccess }: EmployeeFormProps)
           <button
             type="button"
             onClick={() => reset()}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 
+                       hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
           >
             Reset
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                       focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
           >
             {isSubmitting ? 'Saving...' : (editData ? 'Update Employee' : 'Add Employee')}
           </button>
