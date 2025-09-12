@@ -1,42 +1,192 @@
 'use client'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import PayrollTable from '@/components/payroll/PayrollTable'
+import PayrollCard from '@/components/payroll/PayrollCard'
+import { initialPayrollEntries, PayrollEntry } from '@/lib/payrollData'
+import { Plus, Grid, List } from 'lucide-react'
 
-interface PayrollData {
-  id: number
-  name: string
-  payrollNumber: number
-  position: { title: string }
-  department: string
-  dailySalary: number
-  payrollType: string
-  bankAccount: string
+export default function PayrollDashboard() {
+  const router = useRouter()
+  const [payrollEntries, setPayrollEntries] = useState<PayrollEntry[]>(initialPayrollEntries)
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
+  const [filterStatus, setFilterStatus] = useState<string>('all')
+
+  const filteredEntries = payrollEntries.filter(entry => 
+    filterStatus === 'all' || entry.status === filterStatus
+  )
+
+  const handleView = (id: number) => {
+    router.push(`/payroll/${id}`)
+  }
+
+  const handleEdit = (id: number) => {
+    router.push(`/payroll/edit/${id}`)
+  }
+
+  const handleDelete = (id: number) => {
+    if (confirm('Are you sure you want to delete this payroll entry?')) {
+      setPayrollEntries(prev => prev.filter(entry => entry.id !== id))
+    }
+  }
+
+  const handleCardClick = (id: number) => {
+    router.push(`/payroll/${id}`)
+  }
+
+  // Calculate summary statistics
+  const totalEntries = filteredEntries.length
+  const totalGrossPay = filteredEntries.reduce((sum, entry) => sum + entry.baseSalary + entry.bonuses, 0)
+  const totalDeductions = filteredEntries.reduce((sum, entry) => sum + entry.deductions + entry.taxes, 0)
+  const totalNetPay = filteredEntries.reduce((sum, entry) => sum + entry.netPay, 0)
+
+  const statusCounts = payrollEntries.reduce((acc, entry) => {
+    acc[entry.status] = (acc[entry.status] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Payroll Dashboard</h1>
+          <p className="text-gray-600 mt-2">Manage employee payroll entries and calculations</p>
+        </div>
+        <Link
+          href="/payroll/new"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex items-center space-x-2"
+        >
+          <Plus className="h-5 w-5" />
+          <span>New Payroll Entry</span>
+        </Link>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Entries</p>
+              <p className="text-3xl font-bold text-gray-900">{totalEntries}</p>
+            </div>
+            <div className="bg-blue-500 p-3 rounded-full text-white">
+              📊
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Gross Pay</p>
+              <p className="text-3xl font-bold text-gray-900">${totalGrossPay.toLocaleString()}</p>
+            </div>
+            <div className="bg-green-500 p-3 rounded-full text-white">
+              💵
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Deductions</p>
+              <p className="text-3xl font-bold text-gray-900">${totalDeductions.toLocaleString()}</p>
+            </div>
+            <div className="bg-red-500 p-3 rounded-full text-white">
+              📉
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Net Pay</p>
+              <p className="text-3xl font-bold text-gray-900">${totalNetPay.toLocaleString()}</p>
+            </div>
+            <div className="bg-purple-500 p-3 rounded-full text-white">
+              💰
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Overview */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Status Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-yellow-50 rounded-lg">
+            <p className="text-2xl font-bold text-yellow-600">{statusCounts.pending || 0}</p>
+            <p className="text-sm text-yellow-700">Pending</p>
+          </div>
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <p className="text-2xl font-bold text-blue-600">{statusCounts.approved || 0}</p>
+            <p className="text-sm text-blue-700">Approved</p>
+          </div>
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <p className="text-2xl font-bold text-green-600">{statusCounts.paid || 0}</p>
+            <p className="text-sm text-green-700">Paid</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters and View Toggle */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        <div className="flex items-center space-x-4">
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setViewMode('table')}
+            className={`p-2 rounded-md ${viewMode === 'table' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            <List className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`p-2 rounded-md ${viewMode === 'cards' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            <Grid className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Payroll Entries */}
+      {viewMode === 'table' ? (
+        <PayrollTable
+          entries={filteredEntries}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEntries.map((entry) => (
+            <PayrollCard
+              key={entry.id}
+              entry={entry}
+              onClick={() => handleCardClick(entry.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
-export default function PayrollPage() {
-  const [employees, setEmployees] = useState<PayrollData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedPeriod, setSelectedPeriod] = useState('current')
-  const [payrollType, setPayrollType] = useState('all')
-
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await axios.get<PayrollData[]>('/api/employees')
-        setEmployees(response.data)
-      } catch (error) {
-        console.error('Error fetching employees:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchEmployees()
-  }, [])
-
-  const filteredEmployees = employees.filter(emp => 
-    payrollType === 'all' || emp.payrollType === payrollType
-  )
 
   const calculatePayroll = (employee: PayrollData) => {
     const daysInPeriod = employee.payrollType === 'SEMANAL' ? 7 : 14
